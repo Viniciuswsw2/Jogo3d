@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
@@ -15,6 +16,15 @@ public class Player : MonoBehaviour
     public List<Transform> enemyList = new List<Transform>();
     private Vector3 movedirection;
     public float ColliderRadius;
+    public int life = 40;
+    public int dano = 15;
+    public bool isAtack;
+    public bool isdead;
+    public bool ishiting;
+    public Slider healthBar;
+    public float coliderradius;
+    [Header("List")]
+    public List<Transform> enemylist = new List<Transform>();
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +32,8 @@ public class Player : MonoBehaviour
         anim = GetComponent<Animator>();
         Controller = GetComponent<CharacterController>();
         cam = Camera.main.transform;
+        healthBar.value = life;
+        healthBar.maxValue = life; 
     }
 
     // Update is called once per frame
@@ -54,7 +66,7 @@ public class Player : MonoBehaviour
                     // Verifica se a tecla Shift está sendo pressionada para aumentar a velocidade
                     if (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift))
                     {
-                        currentSpeed *= 1.7f; // Aumento de velocidade quando Shift é pressionado
+                        currentSpeed *= 1.6f; // Aumento de velocidade quando Shift é pressionado
                     }
 
                     movedirection = Quaternion.Euler(0f, angle, 0f) * Vector3.forward * currentSpeed;
@@ -80,6 +92,26 @@ public class Player : MonoBehaviour
         movedirection.y -= gravity * Time.deltaTime;
 
         Controller.Move(movedirection * Time.deltaTime);
+    }
+    
+    
+    public void getHit(int dmg)
+    {
+        life -= dmg;
+        if (life > 0)
+        {
+            StopCoroutine("Matack");
+            anim.SetInteger("Transition", 3);
+            ishiting = true;
+            StartCoroutine("recovery");
+            healthBar.value = life;
+        }
+        else
+        {
+            isdead = true;
+            anim.SetTrigger("dead");
+            
+        }
     }
 
     void GetMouseInput()
